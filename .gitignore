@@ -2,8 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+!tel.py
 # C extensions
+venv/
+env/
+__pycache__
+*.pyc
 *.so
 
 # Distribution / packaging
