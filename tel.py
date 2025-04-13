@@ -1,8 +1,12 @@
+import os
+import asyncio
+from aiohttp import web
+from aiogram.filters import Command
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-import os
+
 
 TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=TOKEN)
@@ -333,7 +337,21 @@ async def show_heygen_details(message: Message):
 
 
 
+async def health_check(request):
+    return web.Response(text="Bot is running")
+
+app = web.Application()
+app.router.add_get("/", health_check)
+
+async def start_webserver():
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.getenv("PORT", 10000))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
 async def main():
+    await start_webserver()
     try:
         await dp.start_polling(bot)
     except KeyboardInterrupt:
@@ -342,5 +360,4 @@ async def main():
         await bot.session.close()
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
