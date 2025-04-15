@@ -4,23 +4,22 @@ from aiohttp import web
 from aiogram.filters import Command
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-
+# Инициализация бота
 TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot=bot)
 
-
 def get_main_menu():
     buttons = [
-        [KeyboardButton(text="🎨 Генерация изображений"),KeyboardButton(text="📝 Генерация текста")],
-        [KeyboardButton(text="🛠 Полезные инструменты"),KeyboardButton(text="Меню")]
+        [KeyboardButton(text="🎨 Генерация изображений"), KeyboardButton(text="📝 Генерация текста")],
+        [KeyboardButton(text="💻 Генерация кода"), KeyboardButton(text="🎥 Генерация видео")],
+        [KeyboardButton(text="🎧 Генерация аудио"), KeyboardButton(text="🛠 Полезные инструменты")],
+        [KeyboardButton(text="Меню")]
     ]
     markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     return markup
-
 
 def get_neural_network_menu():
     main = ReplyKeyboardMarkup(
@@ -28,13 +27,14 @@ def get_neural_network_menu():
             [KeyboardButton(text="DALL-E"), KeyboardButton(text="ChatGPT")],
             [KeyboardButton(text="Notion AI"), KeyboardButton(text="10WEB")],
             [KeyboardButton(text="RYTR"), KeyboardButton(text="SITEGPT")],
-            [KeyboardButton(text="HEY GEN")], [(KeyboardButton(text="Назад 🔙"))]
+            [KeyboardButton(text="HEY GEN"), KeyboardButton(text="GitHub Copilot")],
+            [KeyboardButton(text="Sora"), KeyboardButton(text="Eleven Labs")],
+            [KeyboardButton(text="Perplexity AI"), KeyboardButton(text="Назад 🔙")]
         ],
         input_field_placeholder='Выберите пункт меню...',
         resize_keyboard=True
     )
     return main
-
 
 @dp.message(Command("start"))
 async def send_welcome(message: Message):
@@ -43,23 +43,22 @@ async def send_welcome(message: Message):
         "Я помогу тебе найти полезные и прикольные нейросети для жизни! 🚀\n"
         "Выбери, что хочешь узнать:\n"
         "🔹 /list — Список всех нейросетей\n"
-        "🔹 /help — Подсказки по использованию\n"
+        "🔹 /menu — Вернуться в главное меню\n"
         "🔹 /help — Подсказки по использованию"
     )
     await message.answer(welcome_text, parse_mode="Markdown", reply_markup=get_main_menu())
 
 @dp.message(Command("menu"))
-async def send_welcome(message:types.Message):
+async def send_welcome(message: types.Message):
     welcome_text = (
         "🌟 *Привет! Я бот с крутыми нейросетями!* 🌟\n\n"
         "Я помогу тебе найти полезные и прикольные нейросети для жизни! 🚀\n"
         "Выбери, что хочешь узнать:\n"
         "🔹 /list — Список всех нейросетей\n"
-        "🔹 /help — Подсказки по использованию\n"
-        "🔹 /menu — Вернуться в главное меню"
+        "🔹 /menu — Вернуться в главное меню\n"
+        "🔹 /help — Подсказки по использованию"
     )
     await message.answer(welcome_text, parse_mode="Markdown", reply_markup=get_main_menu())
-
 
 @dp.message(F.text == "Меню")
 async def menus(message: types.Message):
@@ -73,27 +72,19 @@ async def menus(message: types.Message):
     )
     await message.answer(welcome_text, parse_mode="Markdown", reply_markup=get_main_menu())
 
-
-
-
 @dp.message(Command("help"))
 async def send_help(message: Message):
     help_text = (
         "ℹ️ *Как пользоваться ботом?*\n\n"
         "1. Нажми на кнопку с категорией, чтобы увидеть список нейросетей.\n"
         "2. Используй inline-кнопки, чтобы узнать больше или увидеть примеры.\n"
-        "3. Если что-то не работает, напиши мне! 😊"
+        "3. Если что-то не работает, напиши мне! 😊\n"
         "4. Используй /menu, чтобы вернуться в главное меню."
     )
     await message.answer(help_text, parse_mode="Markdown")
 
-
-
-
 @dp.message(Command("list"))
 async def show_list(message: Message):
-
-
     list_text = (
         "✨ *Список нейросетей с примерами работы:* ✨\n\n"
         "🖼 *DALL-E (Генерация изображений)*\n"
@@ -111,16 +102,26 @@ async def show_list(message: Message):
         "Пример: Я могу создать тебе текст под любой стиль: 'Напиши мне письмо для бабушки' — и вот 40 шаблонов:\n"
         "_Удобный и подходящий текст под обстоятельства_ ✍️\n\n"
         "🛠 *SiteGPT (Генерация ботов для твоего сайта)*\n"
-        "Пример: Я могу создать персонализированных чат-ботов, обученных на контенте твоего сайта: 'Напиши приветствие для сайта кофейни в тёплом стиле' — и вот результат:\n"
+        "Пример: Я могу создать персонализированных чат-ботов: 'Напиши приветствие для сайта кофейни' — и вот результат:\n"
         "_Делает бота, который выполняет вашу задачу_ 🤖\n\n"
         "✨ *HeyGen (Генерация видео)*\n"
         "Пример: Я могу создать тебе видео: 'Создай мне человека, говорящего новости' — и вот результат:\n"
-        "_Готовое видео с человеком, говорящем на любом популярном языке_ 🎥\n\n"
+        "_Готовое видео с человеком, говорящем на любом языке_ 🎥\n\n"
+        "💻 *GitHub Copilot (Генерация кода)*\n"
+        "Пример: Я могу помочь с кодом: 'Напиши функцию на Python' — и вот результат:\n"
+        "_Готовый рабочий код_ 💻\n\n"
+        "🎥 *Sora (Генерация видео)*\n"
+        "Пример: Я могу создать видео: 'Сгенерируй ролик про лес' — и вот результат:\n"
+        "_Реалистичное видео с лесом_ 📹\n\n"
+        "🎧 *Eleven Labs (Генерация аудио)*\n"
+        "Пример: Я могу озвучить текст: 'Прочитай сказку' — и вот результат:\n"
+        "_Реалистичный голос, как у человека_ 🎙️\n\n"
+        "🛠 *Perplexity AI (Полезные инструменты)*\n"
+        "Пример: Я могу найти информацию: 'Расскажи про космос' — и вот результат:\n"
+        "_Подробный и точный ответ_ 🔍\n\n"
         "Выбери нейросеть ниже, чтобы узнать больше ⬇️"
     )
     await message.answer(list_text, parse_mode="Markdown", reply_markup=get_neural_network_menu())
-
-
 
 @dp.message(F.text == "🎨 Генерация изображений")
 async def show_image_gen(message: Message):
@@ -139,26 +140,33 @@ async def show_image_gen(message: Message):
         "   - Полезность: Для создания фотореалистичных артов\n\n"
         "🔸 *MidJourney*\n"
         "   - Описание: Создаёт уникальные и креативные арты\n"
-        "   - Полезность: Для вдохновения и творчества",
+        "   - Полезность: Для вдохновения и творчества\n\n"
+        "🔸 *Imagen (Google)*\n"
+        "   - Описание: Создаёт фотореалистичные картинки из текста\n"
+        "   - Полезность: Для реалистичных артов\n\n"
+        "🔸 *Make-A-Scene (Meta)*\n"
+        "   - Описание: Генерирует сцены из текста и набросков\n"
+        "   - Полезность: Больше контроля над результатом\n\n"
+        "🔸 *Craiyon*\n"
+        "   - Описание: Простой инструмент для создания изображений из текста\n"
+        "   - Полезность: Бесплатно и легко\n\n"
+        "🔸 *DreamStudio*\n"
+        "   - Описание: Удобный интерфейс для создания изображений с помощью ИИ\n"
+        "   - Полезность: Твори без сложностей\n\n"
+        "🔸 *Artbreeder*\n"
+        "   - Описание: Инструмент для совместного творчества\n"
+        "   - Полезность: Создавай и редактируй арты с ИИ\n\n"
+        "🔸 *GauGAN2*\n"
+        "   - Описание: Создаёт фотореалистичные изображения из текста и набросков\n"
+        "   - Полезность: Для художников",
         parse_mode="Markdown",
         reply_markup=markup
     )
 
-
-
-    await message.answer_photo(
-        photo="https://example.com/midjourney_image.jpg",  # Замени на реальный URL
-        caption="🖼 Пример работы MidJourney: 'Космический пейзаж'"
-    )
-
-
-
 @dp.callback_query(F.data == "midjourney_example")
-async def show_midjourney_example(callback: types.CallbackQuery):
+async def show_midjourney_example(callback: CallbackQuery):
     await callback.message.answer("🎨 MidJourney может создать арт, например: 'Футуристический город в неоне'!")
     await callback.answer()
-
-
 
 @dp.message(F.text == "📝 Генерация текста")
 async def show_text_gen(message: Message):
@@ -174,20 +182,129 @@ async def show_text_gen(message: Message):
         "   - Полезность: Помогает с домашкой или идеями\n\n"
         "🔸 *Grok (xAI)*\n"
         "   - Описание: Даёт честные и прямые ответы\n"
-        "   - Полезность: Для поиска правдивой информации",
+        "   - Полезность: Для поиска правдивой информации\n\n"
+        "🔸 *Claude (Anthropic)*\n"
+        "   - Описание: Умный чат-бот для диалогов и задач\n"
+        "   - Полезность: Надёжный помощник\n\n"
+        "🔸 *Vicuna-13B (#opensource)*\n"
+        "   - Описание: Бесплатный чат-бот, обученный на диалогах\n"
+        "   - Полезность: Для экспериментов\n\n"
+        "🔸 *Mistral (#opensource)*\n"
+        "   - Описание: Мощная языковая модель для текстов\n"
+        "   - Полезность: Открытая и современная\n\n"
+        "🔸 *Qwen (Alibaba Cloud, #opensource)*\n"
+        "   - Описание: Чат-бот для текста, изображений и документов\n"
+        "   - Полезность: Универсальный помощник\n\n"
+        "🔸 *HyperWrite*\n"
+        "   - Описание: Помощник для письма, ускоряет создание текстов\n"
+        "   - Полезность: Пиши быстро\n\n"
+        "🔸 *Jenni*\n"
+        "   - Описание: Экономит время на текстах\n"
+        "   - Полезность: Генерирует идеи и пишет за тебя\n\n"
+        "🔸 *Rytr*\n"
+        "   - Описание: Генерирует тексты в любом стиле с помощью ИИ\n"
+        "   - Полезность: Для писем и маркетинга",
         parse_mode="Markdown",
         reply_markup=markup
     )
-
-
-
 
 @dp.callback_query(F.data == "chatgpt_example")
 async def show_chatgpt_example(callback: CallbackQuery):
     await callback.message.answer("💬 ChatGPT может написать: 'Составь план на день' — и выдаст подробный список дел!")
     await callback.answer()
 
+@dp.message(F.text == "💻 Генерация кода")
+async def show_code_gen(message: Message):
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Узнать больше о GitHub Copilot", url="https://github.com/features/copilot")],
+        [InlineKeyboardButton(text="Пример работы", callback_data="copilot_example")]
+    ])
 
+    await message.answer(
+        "💻 *Нейросети для генерации кода:*\n\n"
+        "🔸 *GitHub Copilot*\n"
+        "   - Описание: Помощник для программистов, предлагает код прямо в редакторе\n"
+        "   - Полезность: Пиши код быстрее\n\n"
+        "🔸 *OpenAI Codex*\n"
+        "   - Описание: Переводит текст в код\n"
+        "   - Полезность: Отлично для автоматизации\n\n"
+        "🔸 *Tabnine*\n"
+        "   - Описание: Ускоряет код с автодополнением\n"
+        "   - Полезность: Для продуктивности\n\n"
+        "🔸 *CodiumAI*\n"
+        "   - Описание: Генерирует тесты для кода в IDE\n"
+        "   - Полезность: Для разработчиков",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@dp.callback_query(F.data == "copilot_example")
+async def show_copilot_example(callback: CallbackQuery):
+    await callback.message.answer("💻 GitHub Copilot может написать код, например: 'Функция на Python для сортировки списка'!")
+    await callback.answer()
+
+@dp.message(F.text == "🎥 Генерация видео")
+async def show_video_gen(message: Message):
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Узнать больше о Sora", url="https://openai.com/sora")],
+        [InlineKeyboardButton(text="Пример работы", callback_data="sora_example")]
+    ])
+
+    await message.answer(
+        "🎥 *Нейросети для генерации видео:*\n\n"
+        "🔸 *Sora (OpenAI)*\n"
+        "   - Описание: Создаёт реалистичные видео из текста\n"
+        "   - Полезность: Оживи идеи\n\n"
+        "🔸 *Runway*\n"
+        "   - Описание: Инструмент для создания и редактирования видео с ИИ\n"
+        "   - Полезность: Для творчества\n\n"
+        "🔸 *Synthesia*\n"
+        "   - Описание: Превращает текст в видео с ведущими\n"
+        "   - Полезность: Быстро и профессионально\n\n"
+        "🔸 *Pika*\n"
+        "   - Описание: Платформа для создания видео из идей\n"
+        "   - Полезность: Твори легко\n\n"
+        "🔸 *HeyGen*\n"
+        "   - Описание: Генерирует видео с говорящими персонажами\n"
+        "   - Полезность: Для рекламы и новостей",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@dp.callback_query(F.data == "sora_example")
+async def show_sora_example(callback: CallbackQuery):
+    await callback.message.answer("🎥 Sora может создать видео, например: 'Ролик про закат в горах'!")
+    await callback.answer()
+
+@dp.message(F.text == "🎧 Генерация аудио")
+async def show_audio_gen(message: Message):
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Узнать больше о Eleven Labs", url="https://elevenlabs.io")],
+        [InlineKeyboardButton(text="Пример работы", callback_data="elevenlabs_example")]
+    ])
+
+    await message.answer(
+        "🎧 *Нейросети для генерации аудио:*\n\n"
+        "🔸 *Eleven Labs*\n"
+        "   - Описание: Генерирует реалистичные голоса из текста\n"
+        "   - Полезность: Для озвучки\n\n"
+        "🔸 *Resemble AI*\n"
+        "   - Описание: Создаёт и клонирует голоса из текста\n"
+        "   - Полезность: Для подкастов\n\n"
+        "🔸 *Play.ht*\n"
+        "   - Описание: Превращает текст в голос\n"
+        "   - Полезность: Для аудиоконтента\n\n"
+        "🔸 *MusicLM (Google Research)*\n"
+        "   - Описание: Генерирует музыку из текста\n"
+        "   - Полезность: Для мелодий",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@dp.callback_query(F.data == "elevenlabs_example")
+async def show_elevenlabs_example(callback: CallbackQuery):
+    await callback.message.answer("🎙️ Eleven Labs может озвучить текст, например: 'Прочитай сказку голосом робота'!")
+    await callback.answer()
 
 @dp.message(F.text == "🛠 Полезные инструменты")
 async def show_tools(message: Message):
@@ -203,7 +320,19 @@ async def show_tools(message: Message):
         "   - Полезность: Для учёбы и работы\n\n"
         "🔹 *Grammarly*\n"
         "   - Описание: Проверяет грамматику и стиль текста\n"
-        "   - Полезность: Для написания текстов без ошибок",
+        "   - Полезность: Для написания текстов без ошибок\n\n"
+        "🔹 *Perplexity AI*\n"
+        "   - Описание: Поисковик на ИИ, находит ответы быстро\n"
+        "   - Полезность: Для исследований\n\n"
+        "🔹 *Otter.ai*\n"
+        "   - Описание: Записывает и расшифровывает встречи\n"
+        "   - Полезность: Для продуктивности\n\n"
+        "🔹 *Whisper (#opensource)*\n"
+        "   - Описание: Распознаёт речь и делает текст\n"
+        "   - Полезность: Для транскрипции\n\n"
+        "🔹 *SiteGPT*\n"
+        "   - Описание: Создаёт чат-ботов для твоего сайта\n"
+        "   - Полезность: Для автоматизации поддержки",
         parse_mode="Markdown",
         reply_markup=markup
     )
@@ -217,13 +346,10 @@ async def go_back(message: Message):
         reply_markup=get_main_menu()
     )
 
-
 @dp.callback_query(F.data == "notion_example")
 async def show_notion_example(callback: CallbackQuery):
     await callback.message.answer("📋 Пример: Notion AI может автоматически составить план проекта!")
     await callback.answer()
-
-
 
 @dp.message(F.text == "DALL-E")
 async def show_dalle_details(message: Message):
@@ -239,8 +365,6 @@ async def show_dalle_details(message: Message):
         reply_markup=markup
     )
 
-
-
 @dp.message(F.text == "ChatGPT")
 async def show_chatgpt_details(message: Message):
     markup = InlineKeyboardMarkup(inline_keyboard=[
@@ -254,8 +378,6 @@ async def show_chatgpt_details(message: Message):
         parse_mode="Markdown",
         reply_markup=markup
     )
-
-
 
 @dp.message(F.text == "Notion AI")
 async def show_notion_details(message: Message):
@@ -271,8 +393,6 @@ async def show_notion_details(message: Message):
         reply_markup=markup
     )
 
-
-
 @dp.message(F.text == "10WEB")
 async def show_10web_details(message: Message):
     markup = InlineKeyboardMarkup(inline_keyboard=[
@@ -286,8 +406,6 @@ async def show_10web_details(message: Message):
         parse_mode="Markdown",
         reply_markup=markup
     )
-
-
 
 @dp.message(F.text == "RYTR")
 async def show_rytr_details(message: Message):
@@ -303,8 +421,6 @@ async def show_rytr_details(message: Message):
         reply_markup=markup
     )
 
-
-
 @dp.message(F.text == "SITEGPT")
 async def show_sitegpt_details(message: Message):
     markup = InlineKeyboardMarkup(inline_keyboard=[
@@ -318,8 +434,6 @@ async def show_sitegpt_details(message: Message):
         parse_mode="Markdown",
         reply_markup=markup
     )
-
-
 
 @dp.message(F.text == "HEY GEN")
 async def show_heygen_details(message: Message):
@@ -335,7 +449,61 @@ async def show_heygen_details(message: Message):
         reply_markup=markup
     )
 
+@dp.message(F.text == "GitHub Copilot")
+async def show_copilot_details(message: Message):
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Подробнее о GitHub Copilot", url="https://github.com/features/copilot")]
+    ])
+    await message.answer(
+        "💻 *GitHub Copilot*\n\n"
+        "🔸 *Описание:* Помощник для программистов, предлагает код прямо в редакторе.\n"
+        "🔸 *Пример использования:* Попроси 'Напиши функцию на Python', и Copilot напишет код.\n"
+        "🔸 *Полезность:* Для быстрого написания кода и автоматизации.",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
 
+@dp.message(F.text == "Sora")
+async def show_sora_details(message: Message):
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Подробнее о Sora", url="https://openai.com/sora")]
+    ])
+    await message.answer(
+        "🎥 *Sora*\n\n"
+        "🔸 *Описание:* Создаёт реалистичные видео из текста.\n"
+        "🔸 *Пример использования:* Попроси 'Сгенерируй ролик про лес', и Sora создаст видео.\n"
+        "🔸 *Полезность:* Для создания видеоконтента и творчества.",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@dp.message(F.text == "Eleven Labs")
+async def show_elevenlabs_details(message: Message):
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Подробнее о Eleven Labs", url="https://elevenlabs.io")]
+    ])
+    await message.answer(
+        "🎧 *Eleven Labs*\n\n"
+        "🔸 *Описание:* Генерирует реалистичные голоса из текста.\n"
+        "🔸 *Пример использования:* Попроси 'Прочитай сказку', и получишь озвучку.\n"
+        "🔸 *Полезность:* Для озвучки, подкастов и аудиоконтента.",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@dp.message(F.text == "Perplexity AI")
+async def show_perplexity_details(message: Message):
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Подробнее о Perplexity AI", url="https://www.perplexity.ai")]
+    ])
+    await message.answer(
+        "🛠 *Perplexity AI*\n\n"
+        "🔸 *Описание:* Поисковик на ИИ, находит ответы быстро.\n"
+        "🔸 *Пример использования:* Попроси 'Расскажи про космос', и получишь точный ответ.\n"
+        "🔸 *Полезность:* Для исследований и учёбы.",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
 
 async def health_check(request):
     return web.Response(text="Bot is running")
